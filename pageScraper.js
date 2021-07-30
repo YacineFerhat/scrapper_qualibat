@@ -15,7 +15,11 @@ const scraperObject = {
     );
     await page.keyboard.press("Enter");
     await page.waitForTimeout(2000);
-    await page.click("#tarteaucitronPersonalize2");
+    try {
+      await page.click("#tarteaucitronPersonalize2");
+    } catch (err) {
+      console.log("no modal to close");
+    }
     await page.waitForTimeout(3000);
     await page.click(
       ".formblock > .insideblock >  .form-entreprise > .halfblockright  > .btn-more "
@@ -26,7 +30,11 @@ const scraperObject = {
       await page.waitForSelector(".blockcontainer-inner");
       await page.waitForSelector(".right-particulier-formblock");
       await page.waitForSelector(".insideblock");
-      await page.waitForSelector(".form-result-search");
+      try {
+        await page.waitForSelector(".form-result-search");
+      } catch (err) {
+        console.log("no form");
+      }
       let urls = await page.$$eval("table tbody > tr", (links) => {
         links = links.map((el) => el.querySelector("td > a").href);
         return links;
@@ -106,8 +114,7 @@ const scraperObject = {
           try {
             dataObj["Chiffre d'affaires"] = await newPage.$eval(
               ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(4) > p:nth-of-type(1)",
-              (text) =>
-                text.textContent
+              (text) => text.textContent
             );
           } catch (err) {
             dataObj["Effectif"] = "Not found";
@@ -141,7 +148,6 @@ const scraperObject = {
       } catch (err) {
         nextButtonExist = false;
       }
-      console.log("next button", nextButtonExist);
       if (nextButtonExist) {
         await page.click(
           ".right-particulier-formblock  > .insideblock  > div > .form-result-search > .dataTables_wrapper > .dataTables_paginate > span.next"
@@ -152,7 +158,7 @@ const scraperObject = {
       return scrapedData;
     }
     let data = await scrapeCurrentPage();
-    console.log(data);
+    return data;
   },
 };
 
