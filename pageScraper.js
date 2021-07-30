@@ -1,16 +1,32 @@
 const scraperObject = {
-  url: "https://www.qualibat.com/resultat-de-la-recherche/",
-
-  async scraper(browser) {
+  url: "https://www.qualibat.com/maitre-douvrage/",
+  async scraper(browser, family, departement) {
     let page = await browser.newPage();
     console.log(`Navigating to ${this.url}...`);
     await page.goto(this.url);
+    await page.waitForSelector(".blockcontainer-inner");
+    await page.type(
+      ".formblock > .insideblock >  .form-entreprise > .halfblockleft   > .liste-qualif > .numeric > .fast-numeric",
+      family.toString()
+    );
+    await page.type(
+      ".formblock > .insideblock >  .form-entreprise > .halfblockright  > .second-part > .column > .dep > .select2 > .selection > .select2-selection > .select2-selection__rendered > .select2-search > .select2-search__field",
+      departement.toString()
+    );
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(2000);
+    await page.click("#tarteaucitronPersonalize2");
+    await page.waitForTimeout(3000);
+    await page.click(
+      ".formblock > .insideblock >  .form-entreprise > .halfblockright  > .btn-more "
+    );
+
     let scrapedData = [];
     async function scrapeCurrentPage() {
       await page.waitForSelector(".blockcontainer-inner");
       await page.waitForSelector(".right-particulier-formblock");
       await page.waitForSelector(".insideblock");
-      await page.waitForSelector(".form-result-search"); 
+      await page.waitForSelector(".form-result-search");
       let urls = await page.$$eval("table tbody > tr", (links) => {
         links = links.map((el) => el.querySelector("td > a").href);
         return links;
@@ -22,39 +38,84 @@ const scraperObject = {
           let newPage = await browser.newPage();
           await newPage.goto(link);
 
-          dataObj["nom entreprise"] = await newPage.$eval(
-            ".right-particulier-formblock > .titleblock >  p > strong",
-            (text) => text.textContent
-          );
-          dataObj["Adresse"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(1)",
-            (text) => text.textContent.slice(10)
-          );
-          dataObj["CP"] = "not found";
-          dataObj["Telephone"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(2)",
-            (text) => text.textContent.slice(13)
-          );
-          dataObj["Email"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(3)",
-            (text) => text.textContent.slice(7)
-          );
-          dataObj["Nb chantiers"] = "not found";
-          dataObj["Code client"] = "not found";
-          dataObj["Siren"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(2) > p:nth-of-type(1)",
-            (text) => text.textContent.slice(0, -4)
-          );
-          dataObj["Siret"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(2) > p:nth-of-type(1)",
-            (text) => text.textContent
-          );
-          dataObj["APE"] = "not found";
-          dataObj["Effectif"] = await newPage.$eval(
-            ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(5) > p:nth-of-type(1)",
-            (text) => text.textContent
-          );
+          try {
+            dataObj["nom entreprise"] = await newPage.$eval(
+              ".right-particulier-formblock > .titleblock >  p > strong",
+              (text) => text.textContent
+            );
+          } catch (err) {
+            dataObj["nom entreprise"] = "Not found";
+          }
 
+          dataObj["site web"] = link;
+
+          try {
+            dataObj["Adresse"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(1)",
+              (text) => text.textContent.slice(10)
+            );
+          } catch (err) {
+            dataObj["Adresse"] = "Not found";
+          }
+
+          try {
+            dataObj["Telephone"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(2)",
+              (text) => text.textContent.slice(13)
+            );
+          } catch (err) {
+            dataObj["Telephone"] = "Not found";
+          }
+
+          try {
+            dataObj["Email"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(3)",
+              (text) => text.textContent.slice(7)
+            );
+          } catch (err) {
+            dataObj["Email"] = "Not found";
+          }
+
+          try {
+            dataObj["Siren"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(2) > p:nth-of-type(1)",
+              (text) => text.textContent.slice(0, -4)
+            );
+          } catch (err) {
+            dataObj["Siren"] = "Not found";
+          }
+
+          try {
+            dataObj["Siret"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(2) > p:nth-of-type(1)",
+              (text) => text.textContent
+            );
+          } catch (err) {
+            dataObj["Siret"] = "Not found";
+          }
+
+          try {
+            dataObj["Effectif"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(5) > p:nth-of-type(1)",
+              (text) => text.textContent.slice(0, -9)
+            );
+          } catch (err) {
+            dataObj["Effectif"] = "Not found";
+          }
+
+          try {
+            dataObj["Chiffre d'affaires"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(4) > p:nth-of-type(1)",
+              (text) =>
+                text.textContent
+            );
+          } catch (err) {
+            dataObj["Effectif"] = "Not found";
+          }
+
+          dataObj["Groupe"] = family;
+
+          dataObj["Département"] = departement;
           resolve(dataObj);
 
           await newPage.close();
@@ -65,12 +126,18 @@ const scraperObject = {
         scrapedData.push(currentPageData);
       }
       let nextButtonExist = false;
+      let disabled = true;
       try {
-        const nextButton = await page.$eval(
-          ".right-particulier-formblock  > .insideblock  > div > .form-result-search > .dataTables_wrapper > .dataTables_paginate > span.next",
-          (span) => span.textContent
+        await page.waitForSelector(
+          ".right-particulier-formblock  > .insideblock  > div > .form-result-search > .dataTables_wrapper > .dataTables_paginate",
+          {
+            visible: true,
+          }
         );
-        nextButtonExist = true;
+        disabled = await page.$(
+          ".right-particulier-formblock  > .insideblock  > div > .form-result-search > .dataTables_wrapper > .dataTables_paginate > span.disabled:nth-of-type(5) "
+        );
+        nextButtonExist = disabled ? false : true;
       } catch (err) {
         nextButtonExist = false;
       }
@@ -79,14 +146,13 @@ const scraperObject = {
         await page.click(
           ".right-particulier-formblock  > .insideblock  > div > .form-result-search > .dataTables_wrapper > .dataTables_paginate > span.next"
         );
-        return scrapeCurrentPage(); 
+        return scrapeCurrentPage();
       }
       await page.close();
       return scrapedData;
     }
     let data = await scrapeCurrentPage();
     console.log(data);
-    return data;
   },
 };
 
