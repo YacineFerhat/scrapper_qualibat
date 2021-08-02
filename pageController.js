@@ -22,33 +22,31 @@ const fields = [
   "Département",
 ];
 
-async function scrapeAll(browserInstance) {
+async function scrapeAll(browserInstance, family) {
   let browser;
+  console.log(family);
   try {
     browser = await browserInstance;
-    for (let indexF = 0; indexF < familyNumber.length; indexF++) {
-      for (let departement = 1; departement < 96; departement++) {
-        let scrapedData = await pageScraper.scraper(
-          browser,
-          familyNumber[indexF],
-          departement
-        );
-        try {
-          const parser = new Parser({
-            fields,
-          });
-          const csv = parser.parse(scrapedData);
-          const fileName = `Groupe-${familyNumber[indexF]}-Departement-${departement}`;
-          const result = await imageController.saveImage(csv, fileName);
-          console.log(result);
-        } catch (err) {
-          console.error("couldn't save the csv file", err);
-        }
+    //  for (let indexF = 0; indexF < familyNumber.length; indexF++) {
+
+    for (let departement = 1; departement < 96; departement++) {
+      let scrapedData = await pageScraper.scraper(browser, family, departement);
+      try {
+        const parser = new Parser({
+          fields,
+        });
+        const csv = parser.parse(scrapedData);
+        const fileName = `Groupe-${family}-Departement-${departement}`;
+        await imageController.saveImage(csv, fileName);
+      } catch (err) {
+        console.error("couldn't save the csv file", err);
       }
     }
+    //}
   } catch (err) {
     console.log("Could not resolve the browser instance => ", err);
   }
 }
 
-module.exports = (browserInstance) => scrapeAll(browserInstance);
+module.exports = (browserInstance, family) =>
+  scrapeAll(browserInstance, family);

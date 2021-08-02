@@ -1,18 +1,17 @@
-const express = require('express')
-const app = express()
-const port = 8080
+const express = require("express");
+const app = express();
+const port = 8080;
 const browserObject = require("./browser");
 const scraperController = require("./pageController");
 
-app.get('/', (req, res) => {
-  let browserInstance = browserObject.startBrowser();
-  scraperController(browserInstance);
-})
+app.get("/upload/:family", (req, res) => {
+  const { family } = req.params;
+  if (family !== undefined) {
+    let browserInstance = browserObject.startBrowser();
+    scraperController(browserInstance, family);
+  }
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
-
-
-
-
+  console.log(`Example app listening at http://localhost:${port}`);
+});
