@@ -2,7 +2,7 @@ const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 const serviceKey = path.join(__dirname, "./keys.json");
 
-const saveImage = async (fileInput, name) => {
+const saveFile = async (fileInput, name) => {
   const gcs = new Storage({
     projectId: "laflore-paris",
     keyFilename: serviceKey,
@@ -24,11 +24,7 @@ const saveImage = async (fileInput, name) => {
   return fileUrl;
 };
 
-
-
-
-
-exports.saveImage = saveImage;
+exports.saveFile = saveFile;
 
 
 
