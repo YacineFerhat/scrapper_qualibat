@@ -8,9 +8,9 @@ const saveFile = async (fileInput, name) => {
     keyFilename: serviceKey,
   });
   const bucket = gcs.bucket("mylkee_csv");
-  const gcsFileName = name;
+  const gcsFileName = `${name}.csv`;
   const file = bucket.file(gcsFileName);
-  const result = await file.save(fileInput.buffer, {
+   await file.save(fileInput.buffer, {
     gzip: true,
     resumable: false,
     validation: false,
@@ -18,7 +18,6 @@ const saveFile = async (fileInput, name) => {
       cacheControl: "no-cache",
     },
   });
-  console.log(result, 'result')
   const exist = await file.exists();
   const fileUrl = "https://storage.googleapis.com/mylkee_csv/" + gcsFileName;
   return fileUrl;
