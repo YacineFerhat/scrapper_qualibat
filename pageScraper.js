@@ -47,15 +47,15 @@ const scraperObject = {
           await newPage.goto(link);
 
           try {
-            dataObj["nom entreprise"] = await newPage.$eval(
+            dataObj["Nom entreprise"] = await newPage.$eval(
               ".right-particulier-formblock > .titleblock >  p > strong",
               (text) => text.textContent
             );
           } catch (err) {
-            dataObj["nom entreprise"] = "Not found";
+            dataObj["Nom entreprise"] = "Not found";
           }
 
-          dataObj["site web"] = link;
+          dataObj["Site web"] = link;
 
           try {
             dataObj["Adresse"] = await newPage.$eval(
@@ -117,7 +117,7 @@ const scraperObject = {
               (text) => text.textContent
             );
           } catch (err) {
-            dataObj["Effectif"] = "Not found";
+            dataObj["Chiffre d'affaires"] = "Not found";
           }
 
           dataObj["Groupe"] = family;
