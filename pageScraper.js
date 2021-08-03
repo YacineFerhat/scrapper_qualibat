@@ -2,7 +2,7 @@ const scraperObject = {
   url: "https://www.qualibat.com/maitre-douvrage/",
   async scraper(browser, family, departement) {
     let page = await browser.newPage();
-    console.log(`Navigating to ${this.url}...`);
+    console.log(`in process : family ${family}, departement ${departement} ...`);
     await page.goto(this.url);
     await page.waitForSelector(".blockcontainer-inner");
     await page.type(
@@ -18,7 +18,7 @@ const scraperObject = {
     try {
       await page.click("#tarteaucitronPersonalize2");
     } catch (err) {
-      console.log("no modal to close");
+
     }
     await page.waitForTimeout(3000);
     await page.click(
@@ -33,7 +33,7 @@ const scraperObject = {
       try {
         await page.waitForSelector(".form-result-search");
       } catch (err) {
-        console.log("no form");
+
       }
       let urls = await page.$$eval("table tbody > tr", (links) => {
         links = links.map((el) => el.querySelector("td > a").href);
@@ -69,7 +69,7 @@ const scraperObject = {
           try {
             dataObj["Telephone"] = await newPage.$eval(
               ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(2)",
-              (text) => text.textContent.slice(13)
+              (text) => text.textContent.slice(13).replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "")
             );
           } catch (err) {
             dataObj["Telephone"] = "Not found";
@@ -131,7 +131,6 @@ const scraperObject = {
               }
             );
           } catch (err) {
-            console.log(err);
             dataObj["Chiffre d'affaires"] = "Not found";
           }
 
