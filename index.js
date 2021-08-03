@@ -6,9 +6,10 @@ const scraperController = require("./pageController");
 
 app.get("/upload/:family", (req, res) => {
   const { family } = req.params;
+  const familySplitted = family.split('_')
   if (family !== undefined) {
     let browserInstance = browserObject.startBrowser();
-    scraperController(browserInstance, family);
+    scraperController(browserInstance, familySplitted);
   }
 });
 

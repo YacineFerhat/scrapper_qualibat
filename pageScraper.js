@@ -114,9 +114,24 @@ const scraperObject = {
           try {
             dataObj["Chiffre d'affaires"] = await newPage.$eval(
               ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(4) > p:nth-of-type(1)",
-              (text) => text.textContent
+              (text) => {
+                let isMilion = text.textContent.includes("millions euros")
+                  ? true
+                  : false;
+                let textToShow = isMilion
+                  ? text.textContent.slice(0, -14)
+                  : text.textContent.slice(0,-6);
+
+                  "245 888 euros"
+                let textWithoutComma = textToShow;
+                textWithoutComma = isMilion
+                  ? parseFloat(textWithoutComma.replace(",", ".")) * 1000000
+                  : parseFloat(textWithoutComma.replace(" ", ""));
+                return textWithoutComma;
+              }
             );
           } catch (err) {
+            console.log(err);
             dataObj["Chiffre d'affaires"] = "Not found";
           }
 
