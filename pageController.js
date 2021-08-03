@@ -1,6 +1,7 @@
 const { Parser } = require("json2csv");
 const pageScraper = require("./pageScraper");
 const fileController = require("./utils/uploadFile");
+const fs = require('fs');
 
 const familyNumber = [
   11, 12, 13, 14, 15, 21, 22, 23, 24, 25, 27, 31, 32, 33, 34, 35, 37, 38, 39,
@@ -18,8 +19,8 @@ const fields = [
   "Siret",
   "Effectif",
   "Chiffre d'affaires",
-  "Groupe",
   "Département",
+  "Groupe",
 ];
 
 async function scrapeAll(browserInstance, family) {
@@ -37,7 +38,13 @@ async function scrapeAll(browserInstance, family) {
         });
         const csv = parser.parse(scrapedData);
         const fileName = `Groupe-${family}-Departement-${departement}`;
-        await fileController.saveFile(csv, fileName);
+        fs.writeFile(`csv/${fileName}.csv`, csv , 'utf8', function(err) {
+          if(err) {
+              return console.log(err);
+          }
+          console.log(`The data has been scraped and saved successfully! View it at ./csv/${fileName}.json`);
+      });
+       // await fileController.saveFile(csv, fileName);
       } catch (err) {
         console.error("couldn't save the csv file", err);
       }
