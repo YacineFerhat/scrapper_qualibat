@@ -27,7 +27,6 @@ const fields = [
 
 async function scrapeAll(browserInstance, family) {
   let browser;
-  console.log(family);
   try {
     browser = await browserInstance;
     for (let indexF = 0; indexF < family.length; indexF++) {
@@ -44,14 +43,19 @@ async function scrapeAll(browserInstance, family) {
           });
           const csv = parser.parse(scrapedData);
           const fileName = `Groupe-${family[indexF]}-Departement-${departement}`;
-          fs.writeFile(`file/${fileName}.csv`, csv, "utf8", function (err) {
-            if (err) {
-              return console.log(err);
+          fs.writeFile(
+            `scrapping/${fileName}.csv`,
+            csv,
+            "utf8",
+            function (err) {
+              if (err) {
+                return console.log(err);
+              }
+              console.log(
+                `The data has been scraped and saved successfully! View it at ./csv/${fileName}.json`
+              );
             }
-            console.log(
-              `The data has been scraped and saved successfully! View it at ./csv/${fileName}.json`
-            );
-          });
+          );
           // await fileController.saveFile(csv, fileName);
         } catch (err) {
           console.error("couldn't save the csv file", err);
