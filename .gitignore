@@ -1,6 +1,9 @@
 # compiled output
 /node_modules
 .history/
+/file
+/files
+/csv
 # Logs
 logs
 *.log

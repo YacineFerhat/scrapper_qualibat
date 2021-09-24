@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 8080;
+const port = 8090;
 const browserObject = require("./browser");
 const scraperController = require("./pageController");
 

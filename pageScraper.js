@@ -2,8 +2,16 @@ const scraperObject = {
   url: "https://www.qualibat.com/maitre-douvrage/",
   async scraper(browser, family, departement) {
     let page = await browser.newPage();
-    console.log(`in process : family ${family}, departement ${departement} ...`);
-    await page.goto(this.url);
+    await page.setDefaultNavigationTimeout(0);
+    console.log(
+      `in process : family ${family}, departement ${departement} ...`
+    );
+    await page.goto(this.url, {
+      waitUntil: "load",
+      // Remove the timeout
+      timeout: 0,
+    });
+
     await page.waitForSelector(".blockcontainer-inner");
     await page.type(
       ".formblock > .insideblock >  .form-entreprise > .halfblockleft   > .liste-qualif > .numeric > .fast-numeric",
@@ -17,9 +25,7 @@ const scraperObject = {
     await page.waitForTimeout(2000);
     try {
       await page.click("#tarteaucitronPersonalize2");
-    } catch (err) {
-
-    }
+    } catch (err) {}
     await page.waitForTimeout(3000);
     await page.click(
       ".formblock > .insideblock >  .form-entreprise > .halfblockright  > .btn-more "
@@ -27,14 +33,12 @@ const scraperObject = {
 
     let scrapedData = [];
     async function scrapeCurrentPage() {
-      await page.waitForSelector(".blockcontainer-inner");
-      await page.waitForSelector(".right-particulier-formblock");
-      await page.waitForSelector(".insideblock");
       try {
+        await page.waitForSelector(".blockcontainer-inner");
+        await page.waitForSelector(".right-particulier-formblock");
+        await page.waitForSelector(".insideblock");
         await page.waitForSelector(".form-result-search");
-      } catch (err) {
-
-      }
+      } catch (err) {}
       let urls = await page.$$eval("table tbody > tr", (links) => {
         links = links.map((el) => el.querySelector("td > a").href);
         return links;
@@ -69,7 +73,13 @@ const scraperObject = {
           try {
             dataObj["Telephone"] = await newPage.$eval(
               ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(6) > p:nth-of-type(2)",
-              (text) => text.textContent.slice(13).replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "")
+              (text) =>
+                text.textContent
+                  .slice(13)
+                  .replace(" ", "")
+                  .replace(" ", "")
+                  .replace(" ", "")
+                  .replace(" ", "")
             );
           } catch (err) {
             dataObj["Telephone"] = "Not found";
@@ -103,6 +113,24 @@ const scraperObject = {
           }
 
           try {
+            dataObj["Dirigeant"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(1) > p:nth-of-type(1)",
+              (text) => text.textContent
+            );
+          } catch (err) {
+            dataObj["Dirigeant"] = "Not found";
+          }
+
+          try {
+            dataObj["Date de création"] = await newPage.$eval(
+              ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(3) > p:nth-of-type(1)",
+              (text) => text.textContent
+            );
+          } catch (err) {
+            dataObj["Date de création"] = "Not found";
+          }
+
+          try {
             dataObj["Effectif"] = await newPage.$eval(
               ".right-particulier-formblock > .insideblock > div > .account-single > .left-col > div.block:nth-of-type(5) > p:nth-of-type(1)",
               (text) => text.textContent.slice(0, -9)
@@ -120,9 +148,7 @@ const scraperObject = {
                   : false;
                 let textToShow = isMilion
                   ? text.textContent.slice(0, -14)
-                  : text.textContent.slice(0,-6);
-
-                  "245 888 euros"
+                  : text.textContent.slice(0, -6);
                 let textWithoutComma = textToShow;
                 textWithoutComma = isMilion
                   ? parseFloat(textWithoutComma.replace(",", ".")) * 1000000

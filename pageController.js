@@ -12,6 +12,8 @@ const familyNumber = [
 const fields = [
   "Nom entreprise",
   "Site web",
+  "Dirigeant",
+  "Date de création",
   "Adresse",
   "Telephone",
   "Email",
@@ -28,28 +30,33 @@ async function scrapeAll(browserInstance, family) {
   console.log(family);
   try {
     browser = await browserInstance;
-for (let indexF = 0; indexF < family.length; indexF++) {
-//for (let departement = 1; departement < 96; departement++) {
-
-    for (let departement = 1; departement < 96; departement++) {
-      let scrapedData = await pageScraper.scraper(browser, family[indexF], departement);
-      try {
-        const parser = new Parser({
-          fields,
-        });
-        const csv = parser.parse(scrapedData);
-        const fileName = `Groupe-${family[indexF]}-Departement-${departement}`;
-          fs.writeFile(`csv/${fileName}.csv`, csv , 'utf8', function(err) {
-          if(err) {
+    for (let indexF = 0; indexF < family.length; indexF++) {
+      //for (let departement = 1; departement < 96; departement++) {
+      for (let departement = 7; departement < 96; departement++) {
+        let scrapedData = await pageScraper.scraper(
+          browser,
+          family[indexF],
+          departement
+        );
+        try {
+          const parser = new Parser({
+            fields,
+          });
+          const csv = parser.parse(scrapedData);
+          const fileName = `Groupe-${family[indexF]}-Departement-${departement}`;
+          fs.writeFile(`file/${fileName}.csv`, csv, "utf8", function (err) {
+            if (err) {
               return console.log(err);
-          }
-          console.log(`The data has been scraped and saved successfully! View it at ./csv/${fileName}.json`);
-      });
-        // await fileController.saveFile(csv, fileName);
-      } catch (err) {
-        console.error("couldn't save the csv file", err);
+            }
+            console.log(
+              `The data has been scraped and saved successfully! View it at ./csv/${fileName}.json`
+            );
+          });
+          // await fileController.saveFile(csv, fileName);
+        } catch (err) {
+          console.error("couldn't save the csv file", err);
+        }
       }
-    }
     }
   } catch (err) {
     console.log("Could not resolve the browser instance => ", err);
